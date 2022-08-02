@@ -1,11 +1,11 @@
 # SapiensBackupManager
 
-![screenshot](https://github.com/wriley/SapiensBackupManager/blob/master/screenshot.png)
+![screenshot](https://github.com/wriley/SapiensBackupManager/blob/main/screenshot.png)
 
 A simple backup/restore tool for Sapiens
 
 How to install:
-* Download ![SapiensBackupManager.zip](https://github.com/wriley/SapiensBackupManager/raw/master/download/SapiensBackupManager.zip) and extract to folder of your choice
+* Download ![SapiensBackupManager.zip](https://github.com/wriley/SapiensBackupManager/raw/main/download/SapiensBackupManager.zip) and extract to folder of your choice
 * Double click SapiensBackupManager.exe
 * Set a backup folder location to store created backup files
 * Set your worlds folder location
