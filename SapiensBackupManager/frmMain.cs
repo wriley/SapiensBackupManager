@@ -20,10 +20,10 @@ namespace SapiensBackupManager
         private string timestampString = "yyyyMMdd-HHmmss";
         private List<TreeNode> unselectableSaveNodes = new List<TreeNode>();
         private List<TreeNode> unselectableBackupNodes = new List<TreeNode>();
-        private List<FarmSimSaveGame> mySaveGames = new List<FarmSimSaveGame>();
-        private List<FarmSimSaveGame> backupSaveGames = new List<FarmSimSaveGame>();
+        private List<SapiensSaveGame> mySaveGames = new List<SapiensSaveGame>();
+        private List<SapiensSaveGame> backupSaveGames = new List<SapiensSaveGame>();
 
-        private struct FarmSimSaveGame
+        private struct SapiensSaveGame
         {
             public string directoryName;
             public DateTime directoryChanged;
@@ -100,7 +100,7 @@ namespace SapiensBackupManager
                 DebugLog("Save game path not found, check options!");
                 return;
             }
-            mySaveGames = new List<FarmSimSaveGame>();
+            mySaveGames = new List<SapiensSaveGame>();
             string[] dirs = Directory.GetDirectories(saveGamePath);
             foreach (string dir in dirs)
             {
@@ -118,7 +118,7 @@ namespace SapiensBackupManager
                         if (File.Exists(gameXmlFile))
                         {
                             DebugLog("Found XML " + gameXmlFile);
-                            FarmSimSaveGame save = new FarmSimSaveGame();
+                            SapiensSaveGame save = new SapiensSaveGame();
 
                             XmlDocument gameXml = new XmlDocument();
                             gameXml.Load(gameXmlFile);
@@ -172,7 +172,7 @@ namespace SapiensBackupManager
                 return;
             }
             string[] backupFiles = Directory.GetFiles(backupFolder);
-            backupSaveGames = new List<FarmSimSaveGame>();
+            backupSaveGames = new List<SapiensSaveGame>();
             Regex r = new Regex(@"^" + farmsimVersion + "_(savegame[0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
             Match m;
             foreach (string backupFile in backupFiles)
@@ -192,7 +192,7 @@ namespace SapiensBackupManager
                                 if (theEntry.Name == "careerSavegame.xml")
                                 {
                                     XmlDocument gameXml = new XmlDocument();
-                                    FarmSimSaveGame save = new FarmSimSaveGame();
+                                    SapiensSaveGame save = new SapiensSaveGame();
                                     gameXml.Load(s);
 
                                     save.directoryName = m.Groups[1].Value;
