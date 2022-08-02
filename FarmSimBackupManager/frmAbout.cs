@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FarmSimBackupManager
+namespace SapiensBackupManager
 {
     partial class frmAbout : Form
     {

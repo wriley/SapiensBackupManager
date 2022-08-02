@@ -1,4 +1,4 @@
-﻿namespace FarmSimBackupManager
+﻿namespace SapiensBackupManager
 {
     partial class frmAbout
     {

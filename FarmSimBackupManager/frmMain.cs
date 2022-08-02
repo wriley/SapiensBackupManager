@@ -9,7 +9,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using System.Globalization;
 using System.Linq;
 
-namespace FarmSimBackupManager
+namespace SapiensBackupManager
 {
     public partial class frmMain : Form
     {

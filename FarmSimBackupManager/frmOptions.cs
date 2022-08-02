@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FarmSimBackupManager
+namespace SapiensBackupManager
 {
     public partial class frmOptions : Form
     {

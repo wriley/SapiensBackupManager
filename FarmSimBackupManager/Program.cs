@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FarmSimBackupManager
+namespace SapiensBackupManager
 {
     static class Program
     {
