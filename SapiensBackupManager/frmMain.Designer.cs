@@ -47,6 +47,7 @@
             this.buttonRemoveBackup = new System.Windows.Forms.Button();
             this.buttonOpenBackupLocation = new System.Windows.Forms.Button();
             this.buttonRefresh = new System.Windows.Forms.Button();
+            this.buttonOpenWorldsLocation = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -173,6 +174,7 @@
             this.flowLayoutPanel1.Controls.Add(this.buttonRestore);
             this.flowLayoutPanel1.Controls.Add(this.buttonRemoveBackup);
             this.flowLayoutPanel1.Controls.Add(this.buttonOpenBackupLocation);
+            this.flowLayoutPanel1.Controls.Add(this.buttonOpenWorldsLocation);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(408, 32);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(84, 355);
@@ -229,6 +231,16 @@
             this.buttonRefresh.UseVisualStyleBackColor = true;
             this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
             // 
+            // buttonOpenWorldsLocation
+            // 
+            this.buttonOpenWorldsLocation.Location = new System.Drawing.Point(3, 160);
+            this.buttonOpenWorldsLocation.Name = "buttonOpenWorldsLocation";
+            this.buttonOpenWorldsLocation.Size = new System.Drawing.Size(75, 49);
+            this.buttonOpenWorldsLocation.TabIndex = 4;
+            this.buttonOpenWorldsLocation.Text = "Open Worlds Folder";
+            this.buttonOpenWorldsLocation.UseVisualStyleBackColor = true;
+            this.buttonOpenWorldsLocation.Click += new System.EventHandler(this.buttonOpenWorldsLocation_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -273,6 +285,7 @@
         private System.Windows.Forms.Button buttonRemoveBackup;
         private System.Windows.Forms.Button buttonOpenBackupLocation;
         private System.Windows.Forms.Button buttonRefresh;
+        private System.Windows.Forms.Button buttonOpenWorldsLocation;
     }
 }
 

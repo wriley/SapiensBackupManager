@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace SapiensBackupManager
 {
@@ -24,6 +25,7 @@ namespace SapiensBackupManager
         private void frmOptions_Load(object sender, EventArgs e)
         {
             textBoxBackupFolder.Text = parentForm.backupFolder;
+            textBoxSaveFolder.Text = parentForm.saveFolder;
         }
 
         private void buttonOptionsSave_Click(object sender, EventArgs e)
@@ -44,6 +46,19 @@ namespace SapiensBackupManager
             {
                 parentForm.backupFolder = folderBrowserDialog1.SelectedPath;
                 textBoxBackupFolder.Text = folderBrowserDialog1.SelectedPath;
+            }
+        }
+
+        private void buttonSaveFolder_Click(object sender, EventArgs e)
+        {
+            // %appdata%\majicjungle\sapiens\players\STEAMID\worlds
+            folderBrowserDialog1.RootFolder = Environment.SpecialFolder.ApplicationData;
+            folderBrowserDialog1.SelectedPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "majicjungle", "sapiens", "players");
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                parentForm.saveFolder = folderBrowserDialog1.SelectedPath;
+                textBoxSaveFolder.Text = folderBrowserDialog1.SelectedPath;
             }
         }
     }

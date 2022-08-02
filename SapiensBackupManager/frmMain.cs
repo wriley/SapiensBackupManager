@@ -8,15 +8,16 @@ using System.Xml;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SapiensBackupManager
 {
     public partial class frmMain : Form
     {
         public string backupFolder;
-        public string farmsimVersion;
+        public string saveFolder;
         private string saveGamePath;
-        private string saveGamePathRoot;
         private string timestampString = "yyyyMMdd-HHmmss";
         private List<TreeNode> unselectableSaveNodes = new List<TreeNode>();
         private List<TreeNode> unselectableBackupNodes = new List<TreeNode>();
@@ -26,13 +27,30 @@ namespace SapiensBackupManager
         private struct SapiensSaveGame
         {
             public string directoryName;
-            public DateTime directoryChanged;
-            public string savegameName;
-            public string mapTitle;
-            public string playerName;
-            public string saveDate;
+            public string worldName;
+            public string seed;
+            public double worldTime;
+            public long creationTime;
+            public long lastPlayedTime;
+            public string lastPlayedVersion;
             public string backupName;
-            public Int32 money;
+        }
+
+        public class SapienInfo
+        {
+            public Value0 value0 { get; set; }
+        }
+
+        public class Value0
+        {
+            public int cereal_class_version { get; set; }
+            public string worldName { get; set; }
+            public string seed { get; set; }
+            public double worldTime { get; set; }
+            public double creationTime { get; set; }
+            public double lastPlayedTime { get; set; }
+            public string lastPlayedVersion { get; set; }
+            public int versionCompatibilityIndex { get; set; }
         }
 
         public frmMain()
@@ -44,34 +62,27 @@ namespace SapiensBackupManager
         {
             LoadSettings();
 
-            if (!Directory.Exists(backupFolder))
+            if (!Directory.Exists(backupFolder) || !Directory.Exists(saveFolder))
             {
                 MessageBox.Show("You need to set your options");
                 frmOptions frmOptions = new frmOptions(this);
                 frmOptions.Show(this);
             }
-
-            string path = "TODO";
-            DebugLog("Found game save path: " + path);
-            saveGamePathRoot = path + Path.DirectorySeparatorChar + "My Games";
-            saveGamePath = saveGamePathRoot + Path.DirectorySeparatorChar + farmsimVersion;
-
+            saveGamePath = saveFolder;
             RefreshLists();
         }
 
         private void LoadSettings()
         {
             backupFolder = Properties.Settings.Default.backupFolder;
-            farmsimVersion = Properties.Settings.Default.version;
+            saveFolder = Properties.Settings.Default.saveFolder;
         }
 
         public void SaveSettings()
         {
-            DebugLog("version: " + farmsimVersion);
             Properties.Settings.Default.backupFolder = backupFolder;
-            Properties.Settings.Default.version = farmsimVersion;
+            Properties.Settings.Default.saveFolder = saveFolder;
             Properties.Settings.Default.Save();
-            saveGamePath = saveGamePathRoot + Path.DirectorySeparatorChar + farmsimVersion;
             GetBackupFiles();
             RefreshLists();
         }
@@ -93,6 +104,12 @@ namespace SapiensBackupManager
             }
         }
 
+        private DateTime LocalDateTimeFromUnix(long time)
+        {
+            DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(time);
+            return dateTimeOffset.DateTime.ToLocalTime();
+        }
+
         private void GetSaveGames()
         {
             if(!Directory.Exists(saveGamePath))
@@ -104,33 +121,33 @@ namespace SapiensBackupManager
             string[] dirs = Directory.GetDirectories(saveGamePath);
             foreach (string dir in dirs)
             {
-                //DebugLog("Examining: " + dir);
+                DebugLog("Examining: " + dir);
                 if (Directory.Exists(dir))
                 {
                     string dirName = new DirectoryInfo(dir).Name;
-                    Regex r = new Regex("^savegame[0-9]+$");
+                    Regex r = new Regex("^[a-f0-9]+$");
                     Match m = r.Match(dirName);
                     if (m.Success)
                     {
                         DebugLog("Found save game directory: " + dirName);
-                        string gameXmlFile = dir + Path.DirectorySeparatorChar + "careerSavegame.xml";
+                        string gameJSONFile = dir + Path.DirectorySeparatorChar + "info.json";
 
-                        if (File.Exists(gameXmlFile))
+                        if (File.Exists(gameJSONFile))
                         {
-                            DebugLog("Found XML " + gameXmlFile);
-                            SapiensSaveGame save = new SapiensSaveGame();
-
-                            XmlDocument gameXml = new XmlDocument();
-                            gameXml.Load(gameXmlFile);
+                            DebugLog("Found JSON " + gameJSONFile);
+                            SapienInfo source = new SapienInfo();
+                            string json = File.ReadAllText(gameJSONFile);
+                            source = JsonSerializer.Deserialize<SapienInfo>(json);
+                            SapiensSaveGame save = new SapiensSaveGame();                           
                             DirectoryInfo di = new DirectoryInfo(dir);
                             save.directoryName = di.Name;
-                            save.directoryChanged = di.LastWriteTime;
-                            save.savegameName = getNodeText(gameXml, "settings/savegameName");
-                            save.mapTitle = getNodeText(gameXml, "settings/mapTitle");
-                            save.saveDate = getNodeText(gameXml, "settings/saveDate");
-                            save.playerName = getNodeText(gameXml, "settings/playerName");
-                            save.money = Convert.ToInt32(getNodeText(gameXml, "statistics/money"));
-
+                            save.worldName = source.value0.worldName;
+                            save.seed = source.value0.seed;
+                            save.worldTime = source.value0.worldTime;
+                            save.creationTime = Convert.ToInt32(source.value0.creationTime);
+                            save.lastPlayedTime = Convert.ToInt32(source.value0.lastPlayedTime);
+                            save.lastPlayedVersion = source.value0.lastPlayedVersion;
+                            DebugLog("worldName: " + save.worldName);
                             DebugLog("adding " + save.directoryName);
                             mySaveGames.Add(save);
                         }
@@ -144,18 +161,21 @@ namespace SapiensBackupManager
             for (int i = 0; i < mySaveGames.Count; i++)
             {
                 DebugLog("looking at " + mySaveGames[i].directoryName);
-                TreeNode newParentNode = treeViewSavegames.Nodes.Add(String.Format("{0}: {1} ({2})", mySaveGames[i].directoryName, mySaveGames[i].savegameName, mySaveGames[i].directoryChanged.ToString()));
-                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("Player: {0}", mySaveGames[i].playerName));
+                TreeNode newParentNode = treeViewSavegames.Nodes.Add(String.Format("{0}: {1}", mySaveGames[i].directoryName, LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)));
+                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("World Name: {0}", mySaveGames[i].worldName));
                 unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Map: {0}", mySaveGames[i].mapTitle));
+                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", mySaveGames[i].seed));
                 unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Saved: {0}", mySaveGames[i].saveDate));
+                newChildNode = newParentNode.Nodes.Add(String.Format("World Time: {0}", mySaveGames[i].worldTime));
                 unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Money: {0:n0}", mySaveGames[i].money));
+                newChildNode = newParentNode.Nodes.Add(String.Format("Created: {0}", LocalDateTimeFromUnix(mySaveGames[i].creationTime)));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Version: {0}", mySaveGames[i].lastPlayedVersion));
                 unselectableSaveNodes.Add(newChildNode);
 
                 DateTime latest = GetLatestZipDate(mySaveGames[i].directoryName);
-                if(latest.CompareTo(mySaveGames[i].directoryChanged) >= 0)
+                //DebugLog("latest: " + latest.ToString());
+                if(latest.CompareTo(LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)) >= 0)
                 {
                     newParentNode.ForeColor = System.Drawing.Color.Green;
                     //newParentNode.NodeFont = new System.Drawing.Font(treeViewBackups.Font, System.Drawing.FontStyle.Bold);
@@ -173,7 +193,7 @@ namespace SapiensBackupManager
             }
             string[] backupFiles = Directory.GetFiles(backupFolder);
             backupSaveGames = new List<SapiensSaveGame>();
-            Regex r = new Regex(@"^" + farmsimVersion + "_(savegame[0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
+            Regex r = new Regex(@"^[a-f0-9]+_[0-9]{8}-[0-9]{6}.zip$");
             Match m;
             foreach (string backupFile in backupFiles)
             {
@@ -189,19 +209,19 @@ namespace SapiensBackupManager
                             ZipEntry theEntry;
                             while ((theEntry = s.GetNextEntry()) != null)
                             {
-                                if (theEntry.Name == "careerSavegame.xml")
+                                if (theEntry.Name == "info.json")
                                 {
-                                    XmlDocument gameXml = new XmlDocument();
                                     SapiensSaveGame save = new SapiensSaveGame();
-                                    gameXml.Load(s);
-
+                                    SapienInfo source = new SapienInfo();
+                                    source = JsonSerializer.Deserialize<SapienInfo>(s);
                                     save.directoryName = m.Groups[1].Value;
                                     save.backupName = fileName;
-                                    save.savegameName = getNodeText(gameXml, "settings/savegameName");
-                                    save.mapTitle = getNodeText(gameXml, "settings/mapTitle");
-                                    save.saveDate = getNodeText(gameXml, "settings/saveDate");
-                                    save.playerName = getNodeText(gameXml, "settings/playerName");
-                                    save.money = Convert.ToInt32(getNodeText(gameXml, "statistics/money"));
+                                    save.worldName = source.value0.worldName;
+                                    save.seed = source.value0.seed;
+                                    save.worldTime = source.value0.worldTime;
+                                    save.creationTime = Convert.ToInt32(source.value0.creationTime);
+                                    save.lastPlayedTime = Convert.ToInt32(source.value0.lastPlayedTime);
+                                    save.lastPlayedVersion = source.value0.lastPlayedVersion;
                                     backupSaveGames.Add(save);
                                 }
                             }
@@ -217,16 +237,16 @@ namespace SapiensBackupManager
             for (int i = 0; i < backupSaveGames.Count; i++)
             {
                 TreeNode newParentNode = treeViewBackups.Nodes.Add(backupSaveGames[i].backupName);
-                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("Player: {0}", backupSaveGames[i].playerName));
-                unselectableBackupNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Name: {0}", backupSaveGames[i].savegameName));
-                unselectableBackupNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Map: {0}", backupSaveGames[i].mapTitle));
-                unselectableBackupNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Saved: {0}", backupSaveGames[i].saveDate));
-                unselectableBackupNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Money: {0:n0}", backupSaveGames[i].money));
-                unselectableBackupNodes.Add(newChildNode);
+                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("World Name: {0}", backupSaveGames[i].worldName));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", backupSaveGames[i].seed));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("World Time: {0}", backupSaveGames[i].worldTime));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Created: {0}", LocalDateTimeFromUnix(backupSaveGames[i].creationTime)));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Version: {0}", backupSaveGames[i].lastPlayedVersion));
+                unselectableSaveNodes.Add(newChildNode);
             }
             treeViewBackups.EndUpdate();
         }
@@ -237,7 +257,7 @@ namespace SapiensBackupManager
             {
                 if (mySaveGames[i].directoryName == save)
                 {
-                    return mySaveGames[i].directoryChanged;
+                    return DateTime.FromOADate(mySaveGames[i].lastPlayedTime);
                 }
             }
             return DateTime.MinValue;
@@ -249,7 +269,7 @@ namespace SapiensBackupManager
             DateTime lastDate = DateTime.MinValue;
             for (int i = 0; i < backupSaveGames.Count; i++)
             {
-                Regex r = new Regex(@"^" + farmsimVersion + "_(savegame[0-9]+)_([0-9]{8}-[0-9]{6}).zip$");
+                Regex r = new Regex(@"^([a-f0-9]+)_([0-9]{8}-[0-9]{6}).zip$");
                 Match m = r.Match(backupSaveGames[i].backupName);
                 if (m.Success)
                 {
@@ -342,7 +362,7 @@ namespace SapiensBackupManager
             if (Directory.Exists(mySaveGameDir))
             {
                 string dateString = DateTime.Now.ToString(timestampString);
-                string zipFilePath = backupFolder + Path.DirectorySeparatorChar + farmsimVersion + "_" + dirName + "_" + dateString + ".zip";
+                string zipFilePath = backupFolder + Path.DirectorySeparatorChar + dirName + "_" + dateString + ".zip";
                 DebugLog("zipping to " + zipFilePath);
                 ZipFolder(mySaveGameDir, zipFilePath);
                 GetBackupFiles();
@@ -441,7 +461,7 @@ namespace SapiensBackupManager
         {
             DebugLog("Restoring game " + backupName);
             string dirNameFull = new FileInfo(backupName).Name;
-            Regex r = new Regex(@"^" + farmsimVersion + "_(savegame[0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
+            Regex r = new Regex(@"^([a-f0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
             Match m = r.Match(dirNameFull);
             DebugLog("dirNameFull " + dirNameFull);
             if (m.Success)
@@ -570,6 +590,11 @@ namespace SapiensBackupManager
             GetBackupFiles();
             GetSaveGames();
             showUI(true);
+        }
+
+        private void buttonOpenWorldsLocation_Click(object sender, EventArgs e)
+        {
+            OpenFolder(saveFolder);
         }
     }
 

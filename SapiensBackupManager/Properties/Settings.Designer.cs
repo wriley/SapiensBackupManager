@@ -38,12 +38,12 @@ namespace SapiensBackupManager.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string version {
+        public string saveFolder {
             get {
-                return ((string)(this["version"]));
+                return ((string)(this["saveFolder"]));
             }
             set {
-                this["version"] = value;
+                this["saveFolder"] = value;
             }
         }
     }
