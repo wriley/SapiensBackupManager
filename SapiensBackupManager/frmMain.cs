@@ -83,6 +83,7 @@ namespace SapiensBackupManager
             Properties.Settings.Default.backupFolder = backupFolder;
             Properties.Settings.Default.saveFolder = saveFolder;
             Properties.Settings.Default.Save();
+            saveGamePath = saveFolder;
             GetBackupFiles();
             RefreshLists();
         }
