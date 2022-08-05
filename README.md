@@ -1,5 +1,3 @@
-# NOT YET READY FOR GENERAL USE
-
 # SapiensBackupManager
 
 ![screenshot](https://github.com/wriley/SapiensBackupManager/blob/main/screenshot.png)
@@ -11,5 +9,6 @@ How to install:
 * Double click SapiensBackupManager.exe
 * Set a backup folder location to store created backup files
 * Set your worlds folder location
+![worlds folder](https://github.com/wriley/SapiensBackupManager/blob/main/saveFolder.png)
 
 Use at your own risk
