@@ -46,8 +46,8 @@
             this.buttonRestore = new System.Windows.Forms.Button();
             this.buttonRemoveBackup = new System.Windows.Forms.Button();
             this.buttonOpenBackupLocation = new System.Windows.Forms.Button();
-            this.buttonRefresh = new System.Windows.Forms.Button();
             this.buttonOpenWorldsLocation = new System.Windows.Forms.Button();
+            this.buttonRefresh = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -60,7 +60,7 @@
             this.textBoxDebug.Name = "textBoxDebug";
             this.textBoxDebug.ReadOnly = true;
             this.textBoxDebug.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxDebug.Size = new System.Drawing.Size(900, 124);
+            this.textBoxDebug.Size = new System.Drawing.Size(1045, 124);
             this.textBoxDebug.TabIndex = 0;
             // 
             // menuStrip1
@@ -70,7 +70,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(924, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1069, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -122,9 +122,9 @@
             // 
             // treeViewBackups
             // 
-            this.treeViewBackups.Location = new System.Drawing.Point(498, 32);
+            this.treeViewBackups.Location = new System.Drawing.Point(497, 32);
             this.treeViewBackups.Name = "treeViewBackups";
-            this.treeViewBackups.Size = new System.Drawing.Size(399, 355);
+            this.treeViewBackups.Size = new System.Drawing.Size(545, 355);
             this.treeViewBackups.TabIndex = 0;
             this.treeViewBackups.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewBackups_BeforeSelect);
             // 
@@ -142,7 +142,7 @@
             // 
             this.labelBackups.AutoSize = true;
             this.labelBackups.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelBackups.Location = new System.Drawing.Point(498, 0);
+            this.labelBackups.Location = new System.Drawing.Point(497, 0);
             this.labelBackups.Name = "labelBackups";
             this.labelBackups.Size = new System.Drawing.Size(56, 13);
             this.labelBackups.TabIndex = 2;
@@ -151,9 +151,9 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 45F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 38.75598F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 8.516747F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 52.72727F));
             this.tableLayoutPanel1.Controls.Add(this.labelSaveGames, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.treeViewSavegames, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.labelBackups, 2, 0);
@@ -165,7 +165,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 7.692307F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 92.30769F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(900, 390);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1045, 390);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // flowLayoutPanel1
@@ -177,7 +177,7 @@
             this.flowLayoutPanel1.Controls.Add(this.buttonOpenWorldsLocation);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(408, 32);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(84, 355);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(83, 355);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // buttonBackup
@@ -221,16 +221,6 @@
             this.buttonOpenBackupLocation.UseVisualStyleBackColor = true;
             this.buttonOpenBackupLocation.Click += new System.EventHandler(this.buttonOpenBackupLocation_Click);
             // 
-            // buttonRefresh
-            // 
-            this.buttonRefresh.Location = new System.Drawing.Point(408, 3);
-            this.buttonRefresh.Name = "buttonRefresh";
-            this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
-            this.buttonRefresh.TabIndex = 4;
-            this.buttonRefresh.Text = "Refresh";
-            this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
-            // 
             // buttonOpenWorldsLocation
             // 
             this.buttonOpenWorldsLocation.Location = new System.Drawing.Point(3, 160);
@@ -241,11 +231,21 @@
             this.buttonOpenWorldsLocation.UseVisualStyleBackColor = true;
             this.buttonOpenWorldsLocation.Click += new System.EventHandler(this.buttonOpenWorldsLocation_Click);
             // 
+            // buttonRefresh
+            // 
+            this.buttonRefresh.Location = new System.Drawing.Point(408, 3);
+            this.buttonRefresh.Name = "buttonRefresh";
+            this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
+            this.buttonRefresh.TabIndex = 4;
+            this.buttonRefresh.Text = "Refresh";
+            this.buttonRefresh.UseVisualStyleBackColor = true;
+            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(924, 559);
+            this.ClientSize = new System.Drawing.Size(1069, 559);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.textBoxDebug);
             this.Controls.Add(this.menuStrip1);

@@ -162,18 +162,17 @@ namespace SapiensBackupManager
             for (int i = 0; i < mySaveGames.Count; i++)
             {
                 DebugLog("looking at " + mySaveGames[i].directoryName);
-                TreeNode newParentNode = treeViewSavegames.Nodes.Add(String.Format("{0}: {1}", mySaveGames[i].directoryName, LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)));
-                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("World Name: {0}", mySaveGames[i].worldName));
-                unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", mySaveGames[i].seed));
-                unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("World Time: {0}", mySaveGames[i].worldTime));
+                TreeNode newParentNode = treeViewSavegames.Nodes.Add(String.Format("{0}: {1}", mySaveGames[i].worldName, LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)));
+                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("Directory: {0}", mySaveGames[i].directoryName));
                 unselectableSaveNodes.Add(newChildNode);
                 newChildNode = newParentNode.Nodes.Add(String.Format("Created: {0}", LocalDateTimeFromUnix(mySaveGames[i].creationTime)));
                 unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Last Played: {0}", LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)));
+                unselectableSaveNodes.Add(newChildNode);
                 newChildNode = newParentNode.Nodes.Add(String.Format("Version: {0}", mySaveGames[i].lastPlayedVersion));
                 unselectableSaveNodes.Add(newChildNode);
-
+                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", mySaveGames[i].seed));
+                unselectableSaveNodes.Add(newChildNode);
                 DateTime latest = GetLatestZipDate(mySaveGames[i].directoryName);
                 //DebugLog("latest: " + latest.ToString());
                 if(latest.CompareTo(LocalDateTimeFromUnix(mySaveGames[i].lastPlayedTime)) >= 0)
@@ -194,13 +193,14 @@ namespace SapiensBackupManager
             }
             string[] backupFiles = Directory.GetFiles(backupFolder);
             backupSaveGames = new List<SapiensSaveGame>();
-            Regex r = new Regex(@"^[a-f0-9]+_[0-9]{8}-[0-9]{6}.zip$");
+            Regex r = new Regex(@"^[\w\s]+_([a-f0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
             Match m;
             foreach (string backupFile in backupFiles)
             {
                 if (File.Exists(backupFile))
                 {
                     string fileName = new FileInfo(backupFile).Name;
+                    DebugLog("Checking file " + backupFile);
                     m = r.Match(fileName);
                     if (m.Success && m.Groups[1].Value != null)
                     {
@@ -215,8 +215,8 @@ namespace SapiensBackupManager
                                     SapiensSaveGame save = new SapiensSaveGame();
                                     SapienInfo source = new SapienInfo();
                                     source = JsonSerializer.Deserialize<SapienInfo>(s);
-                                    save.directoryName = m.Groups[1].Value;
                                     save.backupName = fileName;
+                                    save.directoryName = m.Groups[1].Value;
                                     save.worldName = source.value0.worldName;
                                     save.seed = source.value0.seed;
                                     save.worldTime = source.value0.worldTime;
@@ -231,22 +231,22 @@ namespace SapiensBackupManager
                     }
                 }
             }
-            backupSaveGames = backupSaveGames.OrderBy(sel => sel.directoryName, new OrdinalStringComparer()).ToList();
+            backupSaveGames = backupSaveGames.OrderBy(sel => sel.backupName, new OrdinalStringComparer()).ToList();
             treeViewBackups.BeginUpdate();
             treeViewBackups.Nodes.Clear();
             unselectableBackupNodes.Clear();
             for (int i = 0; i < backupSaveGames.Count; i++)
             {
-                TreeNode newParentNode = treeViewBackups.Nodes.Add(backupSaveGames[i].backupName);
-                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("World Name: {0}", backupSaveGames[i].worldName));
-                unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", backupSaveGames[i].seed));
-                unselectableSaveNodes.Add(newChildNode);
-                newChildNode = newParentNode.Nodes.Add(String.Format("World Time: {0}", backupSaveGames[i].worldTime));
+                TreeNode newParentNode = treeViewBackups.Nodes.Add(String.Format("{0}", backupSaveGames[i].backupName));
+                TreeNode newChildNode = newParentNode.Nodes.Add(String.Format("Directory: {0}", backupSaveGames[i].directoryName));
                 unselectableSaveNodes.Add(newChildNode);
                 newChildNode = newParentNode.Nodes.Add(String.Format("Created: {0}", LocalDateTimeFromUnix(backupSaveGames[i].creationTime)));
                 unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Last Played: {0}", LocalDateTimeFromUnix(backupSaveGames[i].lastPlayedTime)));
+                unselectableSaveNodes.Add(newChildNode);
                 newChildNode = newParentNode.Nodes.Add(String.Format("Version: {0}", backupSaveGames[i].lastPlayedVersion));
+                unselectableSaveNodes.Add(newChildNode);
+                newChildNode = newParentNode.Nodes.Add(String.Format("Seed: {0}", backupSaveGames[i].seed));
                 unselectableSaveNodes.Add(newChildNode);
             }
             treeViewBackups.EndUpdate();
@@ -270,7 +270,7 @@ namespace SapiensBackupManager
             DateTime lastDate = DateTime.MinValue;
             for (int i = 0; i < backupSaveGames.Count; i++)
             {
-                Regex r = new Regex(@"^([a-f0-9]+)_([0-9]{8}-[0-9]{6}).zip$");
+                Regex r = new Regex(@"^[\w\s]+_([a-f0-9]+)_([0-9]{8}-[0-9]{6}).zip$");
                 Match m = r.Match(backupSaveGames[i].backupName);
                 if (m.Success)
                 {
@@ -321,11 +321,14 @@ namespace SapiensBackupManager
             if (treeViewSavegames.SelectedNode != null)
             {
 
-                string dirText = treeViewSavegames.SelectedNode.Text;
-                int i = dirText.IndexOf(':');
-                string dirName = dirText.Substring(0, i);
+                string worldText = treeViewSavegames.SelectedNode.Text;
+                int i = worldText.IndexOf(':');
+                string worldName = worldText.Substring(0, i);
+                string dirText = treeViewSavegames.SelectedNode.Nodes[0].Text;
+                i = dirText.IndexOf(':');
+                string directoryName = dirText.Substring(i+2, dirText.Length-i-2);
                 showUI(false);
-                SaveGame(dirName);
+                SaveGame(worldName, directoryName);
                 showUI(true);
                 RefreshLists();
             }
@@ -356,14 +359,14 @@ namespace SapiensBackupManager
             }
         }
 
-        private void SaveGame(string dirName)
+        private void SaveGame(string worldName, string directoryName)
         {
-            DebugLog("Saving game " + dirName);
-            string mySaveGameDir = saveGamePath + Path.DirectorySeparatorChar + dirName;
+            DebugLog("Saving game " + worldName + " " + directoryName);
+            string mySaveGameDir = saveGamePath + Path.DirectorySeparatorChar + directoryName;
             if (Directory.Exists(mySaveGameDir))
             {
                 string dateString = DateTime.Now.ToString(timestampString);
-                string zipFilePath = backupFolder + Path.DirectorySeparatorChar + dirName + "_" + dateString + ".zip";
+                string zipFilePath = backupFolder + Path.DirectorySeparatorChar + worldName + "_" + directoryName + "_" + dateString + ".zip";
                 DebugLog("zipping to " + zipFilePath);
                 ZipFolder(mySaveGameDir, zipFilePath);
                 GetBackupFiles();
@@ -462,7 +465,7 @@ namespace SapiensBackupManager
         {
             DebugLog("Restoring game " + backupName);
             string dirNameFull = new FileInfo(backupName).Name;
-            Regex r = new Regex(@"^([a-f0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
+            Regex r = new Regex(@"^[\w\s]+_([a-f0-9]+)_[0-9]{8}-[0-9]{6}.zip$");
             Match m = r.Match(dirNameFull);
             DebugLog("dirNameFull " + dirNameFull);
             if (m.Success)
@@ -471,6 +474,7 @@ namespace SapiensBackupManager
                 {
                     string dirName = m.Groups[1].Value;
                     string mySaveGameDir = saveGamePath + Path.DirectorySeparatorChar + dirName;
+                    DebugLog("dirName " + dirName);
                     if (Directory.Exists(mySaveGameDir))
                     {
                         DebugLog(dirName + " already exists!");
@@ -506,6 +510,10 @@ namespace SapiensBackupManager
                     DebugLog("Unable to determine save game folder name from " + dirNameFull);
                 }
                 DebugLog("RestoreGame complete");
+            }
+            else
+            {
+                DebugLog("Unable to parse save game folder name from " + dirNameFull);
             }
         }
 
